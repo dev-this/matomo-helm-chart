@@ -23,7 +23,7 @@ https://matomo.org/faq/how-to/faq_163/
 wget https://download.db-ip.com/free/dbip-city-lite-2020-08.mmdb.gz`
 gunzip dbip-city-lite-2020-08.mmdb.gz
 export MATOMO_POD=$(kubectl get pods -o=name -l=app=matomo | cut -c 5-)
-kubectl cp README.md $MATOMO_POD:/var/www/html/misc/DBIP-City-Lite.mmdb
+kubectl cp dbip-city-lite-2020-08.mmdb $MATOMO_POD:/var/www/html/misc/DBIP-City-Lite.mmdb
 ```
 - Refresh Geolocation page
 - Enable "DBIP / GeoIP 2 (Php)" Location provider
