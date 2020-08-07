@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matomo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: matomo
+  template:
+    metadata:
+      labels:
+        app: matomo
+    spec:
+      containers:
+        - name: web
+          image: matomo:3.14.0-apache
+          envFrom:
+          - secretRef:
+              name: matomo-db
+          volumeMounts:
+            - mountPath: /var/www/html/config
+              name: matomo-config
+            - mountPath: /var/www/html/misc
+              name: matomo-misc
+      volumes:
+        - name: matomo-config
+          persistentVolumeClaim:
+            claimName: matomo-config
+        - name: matomo-misc
+          persistentVolumeClaim:
+            claimName: matomo-misc
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+data:
+  MATOMO_DATABASE_ADAPTER: ~
+  MATOMO_DATABASE_DBNAME: ~
+  MATOMO_DATABASE_HOST: ~
+  MATOMO_DATABASE_PASSWORD: ~
+  MATOMO_DATABASE_USERNAME: ~
+metadata:
+  name: matomo-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matomo
+  labels:
+    app: matomo
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      name: matomo
+  selector:
+    app: matomo
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: matomo-misc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: matomo-config
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
